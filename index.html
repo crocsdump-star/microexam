@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Micro Perspective Exam</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#12293f; --navy2:#1b3b56; --gold:#e0a628; --gold-deep:#b8811a;
+    --cream:#f7f3ea; --paper:#fffdf8; --ink:#1c2530; --ink-soft:#5b6673;
+    --line:#dcd4c2; --good:#3f7a53; --good-bg:#e7f2ea; --bad:#b6432f; --bad-bg:#fbeae6;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:'Inter',sans-serif;padding-bottom:60px;}
+  h1,h2,h3,.display{font-family:'Fraunces',serif;}
+  .topbar{background:var(--navy);border-bottom:4px solid var(--gold);position:sticky;top:0;z-index:50;}
+  .topbar-inner{max-width:900px;margin:0 auto;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+  .topbar h1{color:#fbf6e8;font-size:1.4rem;margin:0;}
+  .topbar .sub{color:var(--gold);font-size:0.78rem;margin-top:2px;}
+  .score-box{background:rgba(224,166,40,0.15);border:1px solid rgba(224,166,40,0.4);color:var(--gold);padding:8px 16px;border-radius:999px;font-size:0.88rem;font-weight:600;white-space:nowrap;}
+  main{max-width:900px;margin:0 auto;padding:24px 18px;}
+  .section-title{margin:34px 0 16px;padding-bottom:8px;border-bottom:3px solid var(--gold);}
+  .section-title h2{margin:0;font-size:1.3rem;color:var(--navy);}
+  .section-title p{margin:4px 0 0;color:var(--ink-soft);font-size:0.85rem;}
+  .item{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:14px;}
+  .item .num{font-weight:700;color:var(--gold-deep);font-size:0.8rem;margin-bottom:6px;}
+  .item .prompt{font-size:1.02rem;line-height:1.5;margin-bottom:12px;}
+  .options{display:flex;flex-direction:column;gap:8px;}
+  .opt-btn{text-align:left;padding:11px 14px;border-radius:8px;border:1px solid var(--line);background:var(--cream);cursor:pointer;font-family:'Inter',sans-serif;font-size:0.93rem;}
+  .opt-btn:hover:not(:disabled){border-color:var(--gold-deep);}
+  .opt-btn.correct{background:var(--good-bg);border-color:var(--good);}
+  .opt-btn.incorrect{background:var(--bad-bg);border-color:var(--bad);}
+  .opt-btn:disabled{cursor:default;}
+  .enum-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .enum-row input[type=text]{flex:1;min-width:180px;padding:11px 12px;border-radius:8px;border:1px solid var(--line);font-family:'Inter',sans-serif;font-size:0.95rem;background:var(--cream);color:var(--ink);}
+  .enum-row input.correct{border-color:var(--good);background:var(--good-bg);}
+  .enum-row input.incorrect{border-color:var(--bad);background:var(--bad-bg);}
+  .check-btn{background:var(--navy);color:#fbf6e8;border:none;padding:10px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-size:0.85rem;}
+  .check-btn:disabled{opacity:0.4;cursor:default;}
+  .feedback{margin-top:10px;font-size:0.88rem;padding:10px 12px;border-radius:8px;display:none;}
+  .feedback.show{display:block;}
+  .feedback.correct-fb{background:var(--good-bg);color:var(--good);border:1px solid rgba(63,122,83,0.3);}
+  .feedback.incorrect-fb{background:var(--bad-bg);color:var(--bad);border:1px solid rgba(182,67,47,0.28);}
+  .feedback .ans{color:var(--ink-soft);font-weight:400;display:block;margin-top:3px;}
+  .match-block{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:18px;}
+  .match-block h3{margin:0 0 12px;font-size:1.05rem;color:var(--navy);}
+  .match-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px dashed var(--line);flex-wrap:wrap;}
+  .match-row:last-child{border-bottom:none;}
+  .match-term{font-weight:600;min-width:220px;flex:1;font-size:0.93rem;}
+  .match-row select{flex:1;min-width:220px;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--cream);color:var(--ink);font-family:'Inter',sans-serif;font-size:0.9rem;}
+  .match-row select.correct{border-color:var(--good);background:var(--good-bg);}
+  .match-row select.incorrect{border-color:var(--bad);background:var(--bad-bg);}
+  .match-fb{font-size:0.82rem;margin-top:2px;width:100%;}
+  .match-fb.correct-fb{color:var(--good);}
+  .match-fb.incorrect-fb{color:var(--bad);}
+  .toolbar{position:sticky;top:66px;z-index:40;background:var(--cream);padding:10px 0;margin-bottom:6px;}
+  .progress-track{height:6px;background:var(--line);border-radius:999px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--gold);transition:width .3s ease;}
+  .complete-banner{background:var(--navy);color:#fbf6e8;border-radius:14px;padding:34px 24px;text-align:center;margin:30px 0;border:1px solid var(--gold);}
+  .complete-banner .big{font-family:'Fraunces',serif;font-size:2.6rem;color:var(--gold);}
+  .complete-banner p{color:#cfd9e2;margin-top:6px;}
+  .btn-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px;}
+  .action-btn{border:none;padding:12px 20px;border-radius:9px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.88rem;}
+  .action-btn.retake{background:var(--gold);color:#2a1c02;}
+  .action-btn.shuffle{background:transparent;color:#fbf6e8;border:1px solid rgba(255,255,255,0.4);}
+  .action-btn.newexam{background:var(--good);color:#fff;}
+  .bottom-controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:36px;}
+  .bottom-controls .action-btn.retake{background:var(--paper);color:var(--navy);border:1px solid var(--gold-deep);}
+  .bottom-controls .action-btn.shuffle{background:var(--paper);color:var(--navy);border:1px solid var(--line);}
+  .bottom-controls .action-btn.newexam{background:var(--navy);color:#fbf6e8;}
+  footer.note{text-align:center;color:var(--ink-soft);font-size:0.78rem;margin-top:36px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div>
+      <div class="sub">TOURISM &amp; HOSPITALITY MANAGEMENT</div>
+      <h1>Micro Perspective Exam</h1>
+    </div>
+    <div class="score-box" id="scoreBox">Score: 0 / 50 · Answered: 0 / 50</div>
+  </div>
+  <div class="toolbar">
+    <div style="max-width:900px;margin:0 auto;padding:0 20px;">
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<main id="examRoot"></main>
+
+<script>
+/* ---------- CONTENT BANK ---------- */
+const mcPool = [
+ {q:"In the Push vs. Pull model, \u201cdesire for social status\u201d is an example of:", options:["Push factor","Pull factor","Elastic demand","Suppressed demand"], correct:0},
+ {q:"Pristine beaches and Michelin-starred dining are examples of:", options:["Push factors","Pull factors","Deferred demand","Moments of truth"], correct:1},
+ {q:"A small price increase causes budget travelers to quickly switch to cheaper alternatives. This describes:", options:["Inelastic demand","Elastic demand","Suppressed demand","Potential demand"], correct:1},
+ {q:"Corporate business travel and ultra-luxury resorts typically show:", options:["Elastic demand","Inelastic demand","No demand","Deferred demand"], correct:1},
+ {q:"Individuals who will travel once their socioeconomic circumstances change represent:", options:["Effective demand","Suppressed demand","Potential demand","No demand"], correct:2},
+ {q:"Population segments blocked from traveling by specific obstacles (but who want to) represent:", options:["Suppressed demand","Deferred demand","Effective demand","No demand"], correct:0},
+ {q:"The number of people currently traveling and using services at a destination is called:", options:["Potential demand","Effective demand","Suppressed demand","Deferred demand"], correct:1},
+ {q:"Which of the 5 A's covers airports, highways, and logistics enabling travelers to reach a destination?", options:["Attractions","Accessibility","Amenities","Activities"], correct:1},
+ {q:"Food & beverage outlets, retail centers, and health services fall under which 'A'?", options:["Amenities","Accommodations","Attractions","Activities"], correct:0},
+ {q:"Hotels and resorts that provide lodging and guest services fall under:", options:["Accessibility","Accommodations","Amenities","Attractions"], correct:1},
+ {q:"Why is hotel/airline capacity described as inelastic \u201cin the short run\u201d?", options:["Because prices never change","Because new infrastructure takes years to build","Because demand is always low","Because guests dislike new hotels"], correct:1},
+ {q:"An unbooked hotel room that \u201cexpires\u201d at midnight illustrates:", options:["Perishability","Elasticity","Intermodality","Accessibility"], correct:0},
+ {q:"A resort in Palawan cannot be relocated to Manila to meet demand. This illustrates:", options:["Perishability","Rigid location","Elastic demand","Push factor"], correct:1},
+ {q:"Who coined the term \u201cMoment of Truth\u201d in service management?", options:["Thomas Cook","Jan Carlzon","Marco Polo","Adam Smith"], correct:1},
+ {q:"A delayed email response during booking is an example of a:", options:["Pull factor","Moment of truth","Supply constraint","Push factor"], correct:1},
+ {q:"Which customer journey stage involves comparing options and checking logistics?", options:["Dreaming","Planning","Booking","Sharing"], correct:1},
+ {q:"Post-trip reviews and loyalty program enrollment happen in which stage?", options:["Experiencing","Booking","Sharing","Dreaming"], correct:2},
+ {q:"Late 20th-century aviation deregulation directly led to the rise of:", options:["Mansiones","Low-Cost Carriers","Cursus publicus","Grand Tour guides"], correct:1},
+ {q:"In aviation's public-private split, government primarily manages:", options:["Yield management","Bilateral air agreements & terminal expansion","Onboard hospitality","Fleet maintenance"], correct:1},
+ {q:"The maritime cruise industry's \u201cfloating resort\u201d model merges which three service types?", options:["Transport, accommodation, and F&B","Transport, retail, and banking","Accommodation, banking, and insurance","Transport, insurance, and retail"], correct:0},
+ {q:"A flight lands at 2 AM but public transit starts at 5 AM. This illustrates a:", options:["Pull factor","Logistical gap / supply chain fracture","Moment of truth","Elastic demand scenario"], correct:1},
+ {q:"Using two or more modes of transit to complete one journey is called:", options:["Cursus publicus","Intermodal transportation","Yield management","Deferred demand"], correct:1},
+ {q:"A localized tricycle strike disrupting a rural destination illustrates:", options:["A last-mile bottleneck","Elastic demand","A pull factor","Government macro-facilitation"], correct:0},
+ {q:"The government acting as a \u201cmacro-facilitator\u201d means it:", options:["Runs hotels directly","Builds the foundational environment for private businesses to thrive","Sets airline ticket prices","Avoids all regulation"], correct:1},
+ {q:"Modern sustainable tourism operations must prioritize eco-conscious mobility, lower carbon footprint, and:", options:["Maximizing guest volume at any cost","Cultural & heritage safeguarding","Eliminating public transit","Ignoring community integration"], correct:1}
+];
+
+const enumPool = [
+ {q:"The five layers of tourism demand include Effective, Suppressed, Deferred, Potential, and ______.", ans:["no demand"]},
+ {q:"In the Push vs. Pull model, internal psychological motivations that drive someone away from home are called ______ factors.", ans:["push"]},
+ {q:"External attractions that draw a consumer toward a destination are called ______ factors.", ans:["pull"]},
+ {q:"The '5 A's' of destination supply mix are Attractions, Accessibility, Accommodations, Amenities, and ______.", ans:["activities","activities and ancillary services"]},
+ {q:"The concept describing how customers react to price changes is called price ______ of demand.", ans:["elasticity"]},
+ {q:"Demand that stays steady even with price increases (e.g. corporate travel) is called ______ demand.", ans:["inelastic"]},
+ {q:"The term for tourism inventory (like an empty seat) that expires and can't be resold is ______.", ans:["perishability","perishable"]},
+ {q:"The five stages of the tourist customer journey are Dreaming, Planning, Booking, Experiencing, and ______.", ans:["sharing"]},
+ {q:"Jan Carlzon, former CEO of SAS Group, coined the term '______ of Truth'.", ans:["moment","moments"]},
+ {q:"The use of two or more modes of transit to complete a single journey is called ______ transportation.", ans:["intermodal"]},
+ {q:"A mismatch between transport schedules (e.g. a flight landing before transit opens) is called a logistical ______.", ans:["gap","fracture"]},
+ {q:"The final, localized leg of a traveler's journey to their destination is known as the '______-mile' journey.", ans:["last"]},
+ {q:"Late 20th-century aviation ______ led to the rise of Low-Cost Carriers.", ans:["deregulation"]},
+ {q:"The maritime cruise industry is often described as a '______ resort' because it merges transport, lodging, and dining.", ans:["floating"]},
+ {q:"The government's role in building gateways and infrastructure is called being a ______.", ans:["developer","macro-facilitator"]},
+ {q:"The government's role in overseeing visas, tax incentives, and safety standards is called being a ______.", ans:["regulator"]},
+ {q:"A resort that cannot physically relocate to meet shifting demand illustrates 'rigid ______'.", ans:["location"]},
+ {q:"Individuals who currently lack interest or capability to travel represent '______ demand'.", ans:["no"]},
+ {q:"The framework analyzing tourist motivations vs. destination attractions is called the Push vs. ______ Model.", ans:["pull"]},
+ {q:"Budget airline tickets and weekend getaways are examples of ______ demand, since customers are highly price-sensitive.", ans:["elastic"]}
+];
+
+const matchBlocks = [
+ {title:"Five Layers of Tourism Demand", pairs:[
+   {term:"Effective", def:"People currently traveling and using hospitality services at a destination"},
+   {term:"Suppressed", def:"Population segments blocked from traveling by specific obstacles"},
+   {term:"Deferred", def:"Demand postponed due to temporary supply constraints, schedules, or economic factors"},
+   {term:"Potential", def:"People who will travel once their socioeconomic circumstances change"},
+   {term:"No Demand", def:"People who completely lack interest or capability to travel"}
+ ]},
+ {title:"The 5 A's of Destination Supply", pairs:[
+   {term:"Attractions", def:"Core generators of interest \u2014 beaches, festivals, theme parks"},
+   {term:"Accessibility", def:"Airports, highways, and logistics enabling travelers to reach a destination"},
+   {term:"Accommodations", def:"Establishments providing lodging and guest services"},
+   {term:"Amenities", def:"Food & beverage outlets, retail centers, and health services"},
+   {term:"Activities & Ancillary Services", def:"Recreational activities, tours, guide services, visitor info centers"}
+ ]},
+ {title:"Customer Journey Stages", pairs:[
+   {term:"Dreaming", def:"Inspiration and research phase driven by destination marketing"},
+   {term:"Planning", def:"Comparing options and checking logistics"},
+   {term:"Booking", def:"The actual transaction requiring secure payment and instant confirmation"},
+   {term:"Experiencing", def:"The core physical visit \u2014 front desk, F&B, guest relations"},
+   {term:"Sharing", def:"Post-trip reviews, social media, and loyalty program enrollment"}
+ ]},
+ {title:"Transport & Public Sector Roles", pairs:[
+   {term:"Aviation Public Policy", def:"Managing bilateral air freedom agreements and terminal expansion"},
+   {term:"Maritime Private Operations", def:"Managing cruise itinerary planning and onboard hospitality logistics"},
+   {term:"Roadways Public Policy", def:"State highway maintenance and franchise issuance for connectivity"},
+   {term:"Government Macro-Facilitation", def:"Establishing the foundational environment for micro-level businesses to thrive"},
+   {term:"Intermodal Transportation", def:"Using two or more modes of transit to complete one journey"}
+ ]}
+];
+
+const correctMsgs = [
+ "\uD83C\uDF89 Correct! You're amazing, wiku!",
+ "\u2705 Yes! That's it, wiku \u2014 so smart!",
+ "\uD83D\uDC9B Correct! Proud of you, wiku!",
+ "\uD83C\uDF1F Nailed it, wiku! Keep going!",
+ "\uD83D\uDE4C That's right, wiku! You're on fire!",
+ "\u2728 Perfect, wiku! Brain of a topnotcher!"
+];
+const wrongMsgs = [
+ "\uD83D\uDC9B Not quite, wiku \u2014 but you're doing great, keep trying!",
+ "\uD83E\uDD0D Almost there, wiku! Don't give up!",
+ "\uD83C\uDF37 That's okay, wiku \u2014 mistakes help us learn!",
+ "\uD83D\uDCAA So close, wiku! You've got this!",
+ "\uD83E\uDEF6 No worries, wiku \u2014 next one's yours!",
+ "\uD83C\uDF1F It's alright, wiku \u2014 review it and you'll remember it next time!"
+];
+
+/* ---------- STATE ---------- */
+let state = { mc:[], enum_:[], matches:[], answeredCount:0, correctCount:0, total:50 };
+
+function pickRandom(msgArr){ return msgArr[Math.floor(Math.random()*msgArr.length)]; }
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function sampleN(arr,n){ return shuffle(arr).slice(0,n); }
+function norm(s){ return s.trim().toLowerCase().replace(/\s+/g,' '); }
+
+function buildExam(){
+  const mcChosen = sampleN(mcPool,20).map(item=>{
+    const opts = shuffle(item.options);
+    return { q:item.q, options:opts, correctText:item.options[item.correct], answered:false };
+  });
+  const enumChosen = sampleN(enumPool,15).map(item=>({ q:item.q, ans:item.ans, answered:false }));
+  const blocksChosen = sampleN(matchBlocks,3).map(b=>{
+    const terms = shuffle(b.pairs);
+    const defs = shuffle(b.pairs.map(p=>p.def));
+    return { title:b.title, rows: terms.map(t=>({term:t.term, correctDef:t.def, defOptions:defs, answered:false})) };
+  });
+  state.mc = mcChosen;
+  state.enum_ = enumChosen;
+  state.matches = blocksChosen;
+  state.answeredCount = 0;
+  state.correctCount = 0;
+  state.total = mcChosen.length + enumChosen.length + blocksChosen.reduce((s,b)=>s+b.rows.length,0);
+  render();
+}
+
+function shuffleCurrent(){
+  state.mc.forEach(item=>{ item.options = shuffle(item.options); });
+  state.mc = shuffle(state.mc);
+  state.enum_ = shuffle(state.enum_);
+  state.matches.forEach(b=>{ b.rows = shuffle(b.rows); b.rows.forEach(r=>{ r.defOptions = shuffle(r.defOptions); }); });
+  resetAnswers(false);
+}
+
+function retakeExam(){ resetAnswers(true); }
+
+function resetAnswers(rebuildDom){
+  state.mc.forEach(i=>i.answered=false);
+  state.enum_.forEach(i=>i.answered=false);
+  state.matches.forEach(b=>b.rows.forEach(r=>r.answered=false));
+  state.answeredCount = 0;
+  state.correctCount = 0;
+  render();
+}
+
+function updateScoreUI(){
+  document.getElementById('scoreBox').textContent = `Score: ${state.correctCount} / ${state.total} \u00B7 Answered: ${state.answeredCount} / ${state.total}`;
+  document.getElementById('progressFill').style.width = (state.answeredCount/state.total*100)+'%';
+}
+
+function checkComplete(){
+  if(state.answeredCount >= state.total){
+    const pct = Math.round((state.correctCount/state.total)*100);
+    const el = document.getElementById('completeBanner');
+    if(el){
+      el.style.display='block';
+      el.querySelector('.big').textContent = `${state.correctCount} / ${state.total}`;
+      el.querySelector('.pct').textContent = `${pct}% \u2014 great work, wiku! \uD83D\uDC9B`;
+      el.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+  }
+}
+
+/* ---------- RENDER ---------- */
+function render(){
+  const root = document.getElementById('examRoot');
+  let html = '';
+  let num = 0;
+
+  html += `<div class="section-title"><h2>I. Enumeration</h2><p>Fill in the blank. Press Enter or click Check to submit.</p></div>`;
+  state.enum_.forEach((item,idx)=>{
+    num++;
+    html += `<div class="item"><div class="num">Item ${num}</div>
+      <div class="prompt">${item.q}</div>
+      <div class="enum-row">
+        <input type="text" id="enum-${idx}" ${item.answered?'disabled':''} placeholder="Type your answer...">
+        <button class="check-btn" id="enum-btn-${idx}" ${item.answered?'disabled':''}>Check</button>
+      </div>
+      <div class="feedback" id="enum-fb-${idx}"></div>
+    </div>`;
+  });
+
+  html += `<div class="section-title"><h2>II. Matching Type</h2><p>Match each term to its correct definition using the dropdown.</p></div>`;
+  state.matches.forEach((block,bIdx)=>{
+    html += `<div class="match-block"><h3>${block.title}</h3>`;
+    block.rows.forEach((row,rIdx)=>{
+      num++;
+      html += `<div class="match-row"><div class="match-term">${num}. ${row.term}</div>
+        <select id="match-${bIdx}-${rIdx}" ${row.answered?'disabled':''}>
+          <option value="">Select definition...</option>
+          ${row.defOptions.map(d=>`<option value="${d.replace(/"/g,'&quot;')}">${d}</option>`).join('')}
+        </select>
+        <div class="match-fb" id="match-fb-${bIdx}-${rIdx}"></div>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+
+  html += `<div class="section-title"><h2>III. Multiple Choice</h2><p>Click the option you believe is correct.</p></div>`;
+  state.mc.forEach((item,idx)=>{
+    num++;
+    html += `<div class="item"><div class="num">Item ${num}</div>
+      <div class="prompt">${item.q}</div>
+      <div class="options" id="mc-opts-${idx}">
+        ${item.options.map((opt,oi)=>`<button class="opt-btn" data-idx="${oi}" ${item.answered?'disabled':''} onclick="answerMC(${idx},${oi})">${opt}</button>`).join('')}
+      </div>
+      <div class="feedback" id="mc-fb-${idx}"></div>
+    </div>`;
+  });
+
+  html += `<div class="complete-banner" id="completeBanner" style="display:none;">
+    <div class="big">0 / 0</div>
+    <p class="pct"></p>
+    <div class="btn-row">
+      <button class="action-btn retake" onclick="retakeExam()">Retake Exam</button>
+      <button class="action-btn shuffle" onclick="shuffleCurrent()">Shuffle Exam</button>
+      <button class="action-btn newexam" onclick="buildExam()">Generate New Exam</button>
+    </div>
+  </div>`;
+
+  html += `<div class="bottom-controls">
+    <button class="action-btn retake" onclick="retakeExam()">Retake Exam</button>
+    <button class="action-btn shuffle" onclick="shuffleCurrent()">Shuffle Exam</button>
+    <button class="action-btn newexam" onclick="buildExam()">Generate New Exam</button>
+  </div>
+  <footer class="note">Micro Perspective Exam \u2014 built for wiku \uD83D\uDC9B \u00B7 keep going, you're doing amazing</footer>`;
+
+  root.innerHTML = html;
+
+  state.enum_.forEach((item,idx)=>{
+    const input = document.getElementById(`enum-${idx}`);
+    const btn = document.getElementById(`enum-btn-${idx}`);
+    const submit = ()=> checkEnum(idx);
+    btn.addEventListener('click', submit);
+    input.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); submit(); } });
+  });
+  state.matches.forEach((block,bIdx)=>{
+    block.rows.forEach((row,rIdx)=>{
+      const sel = document.getElementById(`match-${bIdx}-${rIdx}`);
+      sel.addEventListener('change', ()=> checkMatch(bIdx,rIdx));
+    });
+  });
+
+  updateScoreUI();
+  checkComplete();
+}
+
+function answerMC(idx,oi){
+  const item = state.mc[idx];
+  if(item.answered) return;
+  item.answered = true;
+  const chosen = item.options[oi];
+  const isCorrect = chosen === item.correctText;
+  const btns = document.querySelectorAll(`#mc-opts-${idx} .opt-btn`);
+  btns.forEach((b,i)=>{
+    b.disabled = true;
+    if(item.options[i] === item.correctText) b.classList.add('correct');
+    else if(i===oi) b.classList.add('incorrect');
+  });
+  const fb = document.getElementById(`mc-fb-${idx}`);
+  fb.classList.add('show', isCorrect?'correct-fb':'incorrect-fb');
+  fb.innerHTML = isCorrect ? pickRandom(correctMsgs) : `${pickRandom(wrongMsgs)}<span class="ans">Correct answer: ${item.correctText}</span>`;
+  state.answeredCount++;
+  if(isCorrect) state.correctCount++;
+  updateScoreUI();
+  checkComplete();
+}
+
+function checkEnum(idx){
+  const item = state.enum_[idx];
+  if(item.answered) return;
+  const input = document.getElementById(`enum-${idx}`);
+  const val = norm(input.value);
+  const isCorrect = item.ans.some(a=> norm(a)===val || val.includes(norm(a)) );
+  item.answered = true;
+  input.disabled = true;
+  document.getElementById(`enum-btn-${idx}`).disabled = true;
+  input.classList.add(isCorrect?'correct':'incorrect');
+  const fb = document.getElementById(`enum-fb-${idx}`);
+  fb.classList.add('show', isCorrect?'correct-fb':'incorrect-fb');
+  fb.innerHTML = isCorrect ? pickRandom(correctMsgs) : `${pickRandom(wrongMsgs)}<span class="ans">Accepted answer: ${item.ans[0]}</span>`;
+  state.answeredCount++;
+  if(isCorrect) state.correctCount++;
+  updateScoreUI();
+  checkComplete();
+}
+
+function checkMatch(bIdx,rIdx){
+  const row = state.matches[bIdx].rows[rIdx];
+  if(row.answered) return;
+  const sel = document.getElementById(`match-${bIdx}-${rIdx}`);
+  if(!sel.value) return;
+  row.answered = true;
+  sel.disabled = true;
+  const isCorrect = sel.value === row.correctDef;
+  sel.classList.add(isCorrect?'correct':'incorrect');
+  const fb = document.getElementById(`match-fb-${bIdx}-${rIdx}`);
+  fb.classList.add(isCorrect?'correct-fb':'incorrect-fb');
+  fb.innerHTML = isCorrect ? pickRandom(correctMsgs) : `${pickRandom(wrongMsgs)} Correct: ${row.correctDef}`;
+  state.answeredCount++;
+  if(isCorrect) state.correctCount++;
+  updateScoreUI();
+  checkComplete();
+}
+
+/* ---------- BOOT ---------- */
+buildExam();
+</script>
+</body>
+</html>
